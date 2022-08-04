@@ -18,7 +18,15 @@ class RxCreating {
      - returns: Результирующая последовательность с value
     */
     func convertToObservable(value: Int) -> Observable<Int> {
-        return .error(NotImplemetedError())
+        return Observable<Int>.create { observer in
+            if value < 0 {
+                observer.on(.next(value))
+            } else {
+                observer.on(.next(value))
+                observer.on(.completed)
+            }
+            return Disposables.create()
+        }
     }
     
     /**
@@ -27,7 +35,8 @@ class RxCreating {
      - returns: Результирующая последовательность с элементами массива
     */
     func arrayToObservable<T>(_ array: [T]) -> Observable<T> {
-        return .error(NotImplemetedError())
+        let observable = Observable<T>.from(array)
+        return observable
     }
     
     /**
@@ -39,7 +48,13 @@ class RxCreating {
      - returns: Результирующая последовательность с элементами массива
     */
     func arrayToObservableWithTimer<T>(_ array: [T], scheduler: SchedulerType) -> Observable<T> {
-        return .error(NotImplemetedError())
+        let limit = array.count
+        let timing = Observable<Int>.interval(.seconds(1), scheduler: scheduler).enumerated()
+        let limited = timing.enumerated().take(limit)
+        let arrayObs = Observable.from(array)
+        return Observable.zip(limited, arrayObs) { first, second  -> T in
+            second
+        }
     }
     
     /**
